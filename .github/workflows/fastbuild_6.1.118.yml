@@ -28,7 +28,7 @@ on:
         description: '是否开启kpm(可能轻微增加耗电，不需要可关闭)'
         required: true
         type: choice
-        default: 'true'
+        default: 'false'
         options:
           - 'true'
           - 'false'

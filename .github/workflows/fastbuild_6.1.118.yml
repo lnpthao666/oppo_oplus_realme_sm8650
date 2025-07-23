@@ -17,7 +17,7 @@ on:
 #    - cron: '0 23 * * *'  # UTC时间23点（北京时间次日7点）
     inputs:
       hook_method:
-        description: hook模式(大部分情况manual即可，少数需切换sus su模式的场景才需要kprobes钩子)
+        description: 'Cơ chế hook susfs'
         required: true
         type: choice
         default: 'manual'
@@ -157,9 +157,9 @@ jobs:
           mkdir kernel_workspace
           cd kernel_workspace
           echo "正在克隆源码仓库..."
-          aria2c -s16 -x16 -k1M https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650/tree/oneplus/sm8650_v_15.0.0_oneplus_ace5 -o common.zip
+          aria2c -s16 -x16 -k1M "https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650/archive/refs/heads/oneplus/sm8650_v_15.0.0_oneplus_ace5.zip" -o common.zip
           unzip -q common.zip
-          mv "android_kernel_oneplus_sm8650/tree/oneplus/sm8650_v_15.0.0_oneplus_ace5" common
+          mv "android_kernel_oneplus_sm8650-oneplus-sm8650_v_15.0.0_oneplus_ace5" common
           rm -rf common.zip
           echo "正在克隆llvm-Clang20工具链..."
           rm -rf clang20

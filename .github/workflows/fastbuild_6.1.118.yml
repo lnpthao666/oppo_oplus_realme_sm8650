@@ -1,4 +1,4 @@
-name: 加速版构建 6.1.118 欧加真OKI内核 Fastbuild
+name: 加速版构建 6.1.118 欧加真OKI内核
 
 env:
   TZ: Asia/Shanghai
@@ -153,7 +153,7 @@ jobs:
             ccache -sv
           fi
       
-- name: 初始化源码仓库及llvm-Clang20工具链
+      - name: 初始化源码仓库及llvm-Clang20工具链
         run: |
           rm -rf kernel_workspace
           mkdir kernel_workspace

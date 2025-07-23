@@ -106,7 +106,6 @@ jobs:
             curl bison flex make binutils git perl gcc python3 \
             python-is-python3 bc libssl-dev libelf-dev \
             bc aria2 zip unzip ccache
-
       - name: 配置ccache目录
         run: |
           echo "CCACHE_DIR=$HOME/.ccache_6.1.118" >> $GITHUB_ENV
@@ -115,7 +114,6 @@ jobs:
           df -h
           echo "当前构建内核版本：6.1.118"
           rm -rf kernel_platform
-
       - name: 载入当前版本内核的 ccache缓存
         uses: actions/cache@v3
         id: ccache-restore
@@ -158,11 +156,11 @@ jobs:
           rm -rf kernel_workspace
           mkdir kernel_workspace
           cd kernel_workspace
-          echo "正在克隆OnePlus Ace 5的源码仓库..."
-          aria2c -s16 -x16 -k1M https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650/archive/refs/heads/oneplus/sm8650_v_15.0.0_oneplus_ace5.zip -o ace5.zip
-          unzip -q ace5.zip
-          mv "android_kernel_oneplus_sm8650-oneplus-sm8650_v_15.0.0_oneplus_ace5" common
-          rm -rf ace5.zip
+          echo "正在克隆源码仓库..."
+          aria2c -s16 -x16 -k1M https://github.com/cctv18/android_kernel_common_oneplus_sm8650/archive/refs/heads/oneplus/sm8650_v_15.0.0_oneplus12_6.1.118.zip -o common.zip
+          unzip -q common.zip
+          mv "android_kernel_common_oneplus_sm8650-oneplus-sm8650_v_15.0.0_oneplus12_6.1.118" common
+          rm -rf common.zip
           echo "正在克隆llvm-Clang20工具链..."
           rm -rf clang20
           mkdir -p clang20
@@ -180,7 +178,6 @@ jobs:
             sed -i 's/ -dirty//g' "$f"
             sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' "$f"
           done
-
       - name: 添加 SukiSU Ultra
         id: ksu_version
         run: |
@@ -213,7 +210,6 @@ jobs:
           define get_ksu_version_full
           v\\$1-SukiSU-cctv18
           endef
-
           KSU_VERSION_API := $KSU_API_VERSION
           KSU_VERSION_FULL := v$KSU_API_VERSION-SukiSU-cctv18
           EOF
@@ -234,18 +230,14 @@ jobs:
             # 如果未找到插入点，在文件末尾追加
             END {if (!inserted) print def}
           ' kernel/Makefile > kernel/Makefile.tmp && mv kernel/Makefile.tmp kernel/Makefile
-
           # 生成自定义版本号（基于提交计数）, 失败时使用 114514
           KSU_VERSION=$(expr $(git rev-list --count main) + 10700 2>/dev/null || echo 114514)
           # 存储版本号到 GitHub 环境变量
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           echo "ksuver=$KSU_VERSION" >> $GITHUB_OUTPUT
-
           # 验证修改结果
           grep -A10 "REPO_OWNER" kernel/Makefile  # 检查插入点后的内容
           grep "KSU_VERSION_FULL" kernel/Makefile # 确认版本定义存在
-
-
       - name: 应用 SukiSU-Ultra & SUSFS 补丁
         run: |
           cd kernel_workspace
@@ -272,13 +264,11 @@ jobs:
             git apply -p1 < 001-lz4.patch || true
             patch -p1 < 002-zstd.patch || true
           fi
-
       - name: 应用 Hide Stuff 补丁
         run: |
           cd kernel_workspace/common
           cp ../SukiSU_patch/69_hide_stuff.patch ./
           patch -p1 < 69_hide_stuff.patch
-
       - name: 应用 lz4kd 补丁
         run: |
           if [[ "${{ github.event.inputs.lz4k_enable }}" == "true" ]]; then
@@ -369,7 +359,6 @@ jobs:
             wget https://github.com/cctv18/oppo_oplus_realme_sm8650/raw/refs/heads/main/other_patch/config.patch
             patch -p1 -F 3 < config.patch || true
           fi
-
       - name: 添加 BBR 等一系列拥塞控制算法
         run: |
           if [[ "${{ github.event.inputs.bbr_enable }}" == "true" || "${{ github.event.inputs.bbr_enable }}" == "default" ]]; then
@@ -409,7 +398,6 @@ jobs:
               echo "CONFIG_DEFAULT_TCP_CONG=cubic" >> ./common/arch/arm64/configs/gki_defconfig
             fi
           fi
-
       - name: 启用三星SSG IO调度器
         run: |
           if [[ "${{ github.event.inputs.ssg_enable }}" == "true" ]]; then
@@ -418,7 +406,6 @@ jobs:
             echo "CONFIG_MQ_IOSCHED_SSG=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
-
       - name: 添加制作名称
         run: |
           cd kernel_workspace
@@ -504,7 +491,6 @@ jobs:
           else
             zip -r ../AnyKernel3_SukiSU_${{ env.KSUVER }}_${{ env.KERNEL_VERSION }}_A15_${{ env.KERNEL_NAME }}.zip ./*
           fi
-
       - name: 上传 ZIP 工件
         uses: actions/upload-artifact@v4
         with:
